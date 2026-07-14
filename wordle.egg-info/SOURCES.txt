@@ -1,0 +1,10 @@
+pyproject.toml
+tests/test_game.py
+wordle/__init__.py
+wordle/cli.py
+wordle/game.py
+wordle/words.py
+wordle.egg-info/PKG-INFO
+wordle.egg-info/SOURCES.txt
+wordle.egg-info/dependency_links.txt
+wordle.egg-info/top_level.txt
