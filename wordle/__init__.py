@@ -1,3 +1,3 @@
-from .game import GuessResult, InvalidGuessError, LetterStatus, WordleGame
+from .game import VALID_WORDS, GuessResult, InvalidGuessError, LetterStatus, WordleGame, score_guess
 
-__all__ = ["GuessResult", "InvalidGuessError", "LetterStatus", "WordleGame"]
+__all__ = ["VALID_WORDS", "GuessResult", "InvalidGuessError", "LetterStatus", "WordleGame", "score_guess"]

@@ -22,6 +22,34 @@ class InvalidGuessError(ValueError):
     pass
 
 
+def score_guess(guess: str, answer: str) -> tuple:
+    """Score `guess` against `answer`, returning a LetterStatus per position.
+
+    Pure function of (guess, answer) — used by WordleGame.guess() and reused
+    by solvers to simulate feedback for a hypothetical answer.
+    """
+    answer_chars = list(answer)
+    statuses = [LetterStatus.ABSENT] * WORD_LENGTH
+
+    # Pass 1: exact position matches, consuming those answer letters first.
+    for i, ch in enumerate(guess):
+        if ch == answer_chars[i]:
+            statuses[i] = LetterStatus.CORRECT
+            answer_chars[i] = None
+
+    # Pass 2: remaining letters score PRESENT, consumed left-to-right so a
+    # duplicate guess letter is never credited more times than it occurs
+    # in the answer.
+    for i, ch in enumerate(guess):
+        if statuses[i] == LetterStatus.CORRECT:
+            continue
+        if ch in answer_chars:
+            statuses[i] = LetterStatus.PRESENT
+            answer_chars[answer_chars.index(ch)] = None
+
+    return tuple(statuses)
+
+
 @dataclass(frozen=True)
 class GuessResult:
     guess: str
@@ -84,28 +112,6 @@ class WordleGame:
         if word not in self._word_pool:
             raise InvalidGuessError(f"{word!r} is not in the word list")
 
-        result = GuessResult(guess=word, statuses=self._score(word))
+        result = GuessResult(guess=word, statuses=score_guess(word, self.answer))
         self.history.append(result)
         return result
-
-    def _score(self, guess: str) -> tuple:
-        answer_chars = list(self.answer)
-        statuses = [LetterStatus.ABSENT] * WORD_LENGTH
-
-        # Pass 1: exact position matches, consuming those answer letters first.
-        for i, ch in enumerate(guess):
-            if ch == answer_chars[i]:
-                statuses[i] = LetterStatus.CORRECT
-                answer_chars[i] = None
-
-        # Pass 2: remaining letters score PRESENT, consumed left-to-right so a
-        # duplicate guess letter is never credited more times than it occurs
-        # in the answer.
-        for i, ch in enumerate(guess):
-            if statuses[i] == LetterStatus.CORRECT:
-                continue
-            if ch in answer_chars:
-                statuses[i] = LetterStatus.PRESENT
-                answer_chars[answer_chars.index(ch)] = None
-
-        return tuple(statuses)
